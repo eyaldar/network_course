@@ -16,7 +16,10 @@ using namespace std;
 #include "MessageTypes.h"
 
 #define TIME_PORT	27015
-#define EXIT_REQUEST 0
+
+#define MEASURE_COUNT 100
+
+#define EXIT_REQUEST 12
 
 // Functions
 int init_winsock();

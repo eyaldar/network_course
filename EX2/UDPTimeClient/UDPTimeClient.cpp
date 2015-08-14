@@ -13,7 +13,6 @@ void main()
 	sockaddr_in server = create_server(m_socket);
 
 	// Send and receive data.
-	
 	int bytesRecv = 0;
 	char sendBuff[255];
 	char recvBuff[255];
@@ -30,6 +29,21 @@ void main()
 		{
 			case GetClientToServerDelayEstimation:
 			{
+				for (int i = 0; i < MEASURE_COUNT; i++)
+				{
+					if (send_to_server(sendBuff, m_socket, server) == SOCKET_ERROR)
+					{
+						return;
+					}
+				}
+
+				for (int i = 0; i < MEASURE_COUNT; i++)
+				{
+					if (send_to_server(sendBuff, m_socket, server) == SOCKET_ERROR)
+					{
+						return;
+					}
+				}
 				break;
 			}
 			case MeasureRTT:
@@ -99,9 +113,9 @@ sockaddr_in create_server(SOCKET socket)
 int get_request_string(char* sendBuff)
 {
 	char* request = 0;
-	int user_choice;
+	int user_choice = 13;
 
-	while (request == 0)
+	while (user_choice > 12)
 	{
 		cout << endl;
 		cout << "1. Get Time"									<< endl;
@@ -120,15 +134,11 @@ int get_request_string(char* sendBuff)
 		cout << "Please choose a method from the menu (1 - 11): ";
 		cin >> user_choice;
 
-		if (user_choice == EXIT_REQUEST)
+		if (user_choice < 12)
 		{
-			return EXIT_REQUEST;
+			sprintf(sendBuff, "%d", user_choice - 1);
 		}
-
-		request = get_method_string((METHOD_TYPE)(user_choice - 1));
 	}
-
-	strcpy(sendBuff, request);
 
 	return user_choice - 1;
 }

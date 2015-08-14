@@ -1,6 +1,7 @@
 #include "MessageTypes.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 char *accepted_requests[] = {
 	GET_TIME,
@@ -18,18 +19,15 @@ char *accepted_requests[] = {
 
 METHOD_TYPE get_method_type(char* request)
 {
-	int i;
-	int error = 12;
+	int method_type;
+	METHOD_TYPE error = Error;
 
-	for (i = 0; i < AVAILABLE_REQUESTS_NUM; i++)
-	{
-		if (!strcmp(request, accepted_requests[i]))
-		{
-			return (METHOD_TYPE)i;
-		}
-	}
+	method_type = atoi(request);
 
-	return (METHOD_TYPE)error;
+	if(method_type >= Error)
+		return error;
+
+	return (METHOD_TYPE)method_type;
 }
 
 char* get_method_string(METHOD_TYPE method_type)
