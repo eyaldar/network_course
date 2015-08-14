@@ -1,5 +1,7 @@
 #include "UDPTimeClient.h"
 
+#include <stdlib.h>
+
 void main()
 {
 	SOCKET m_socket;
@@ -32,22 +34,54 @@ void main()
 				for (int i = 0; i < MEASURE_COUNT; i++)
 				{
 					if (send_to_server(sendBuff, m_socket, server) == SOCKET_ERROR)
-					{
 						return;
-					}
 				}
 
-				for (int i = 0; i < MEASURE_COUNT; i++)
+				int curr_ticks = 0;
+				int prev_ticks = 0;
+				int sum_of_delays = 0;
+
+				if (recv_from_server(recvBuff, m_socket, server) == SOCKET_ERROR)
+					return;
+
+				prev_ticks = atoi(recvBuff);
+
+				for (int i = 0; i < MEASURE_COUNT - 1; i++)
 				{
-					if (send_to_server(sendBuff, m_socket, server) == SOCKET_ERROR)
-					{
+
+					if (recv_from_server(recvBuff, m_socket, server) == SOCKET_ERROR)
 						return;
-					}
+
+					curr_ticks = atoi(recvBuff);
+					sum_of_delays += curr_ticks - prev_ticks;
+					prev_ticks = curr_ticks;
 				}
+
+				cout << "Client To Server Delay Estimation: " << sum_of_delays / (MEASURE_COUNT - 1) << "ms";
 				break;
 			}
 			case MeasureRTT:
 			{
+				int client_ticks = 0;
+				int server_ticks = 0;
+				int sum_of_delays = 0;
+
+				for (int i = 0; i < MEASURE_COUNT - 1; i++)
+				{
+					client_ticks = GetTickCount();
+
+					if (send_to_server(sendBuff, m_socket, server) == SOCKET_ERROR ||
+						recv_from_server(recvBuff, m_socket, server) == SOCKET_ERROR)
+					{
+						return;
+					}
+
+					server_ticks = atoi(recvBuff);
+					sum_of_delays += (server_ticks - client_ticks);
+				}
+
+				cout << "Measured RTT: " << sum_of_delays / (MEASURE_COUNT - 1) << "ms";
+
 				break;
 			}
 			default: 

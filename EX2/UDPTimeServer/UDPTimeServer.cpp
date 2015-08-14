@@ -36,12 +36,13 @@ void main()
 		}
 
 		recvBuff[bytesRecv] = '\0'; //add the null-terminating to make it a string
+
+		// Determine request type:
 		METHOD_TYPE method_type = get_method_type(recvBuff);
 
 		cout << "Time Server: Recieved: " << bytesRecv << " bytes of \"" << recvBuff << "\" message." 
 			 << endl << "Interperting as '" << get_method_string(method_type) << "' request.\n";
 
-		// Determine request type:
 
 
 
