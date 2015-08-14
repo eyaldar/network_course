@@ -147,7 +147,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MethodType.cpp" />
     <ClCompile Include="UDPTimeServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MessageTypes.h" />
+    <ClInclude Include="UDPTimeServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
