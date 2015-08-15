@@ -147,9 +147,10 @@ sockaddr_in create_server(SOCKET socket)
 int get_request_string(char* sendBuff)
 {
 	char* request = 0;
-	int user_choice = 13;
+	char user_choice_string[255];
+	int user_choice = 0;
 
-	while (user_choice > 12)
+	while (user_choice > 12 || user_choice < 1)
 	{
 		cout << endl;
 		cout << "1. Get Time"									<< endl;
@@ -166,15 +167,17 @@ int get_request_string(char* sendBuff)
 		cout << "12. Exit"										<< endl;
 																
 		cout << "Please choose a method from the menu (1 - 11): ";
-		cin >> user_choice;
+		cin >> user_choice_string;
 
-		if (user_choice < 12)
+		user_choice = atoi(user_choice_string);
+
+		if (user_choice < 12 && user_choice > 0)
 		{
-			sprintf(sendBuff, "%d", user_choice - 1);
+			sprintf(sendBuff, "%d", user_choice);
 		}
 	}
 
-	return user_choice - 1;
+	return user_choice;
 }
 
 int send_to_server(char* sendBuff, SOCKET socket, sockaddr_in server)

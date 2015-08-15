@@ -24,7 +24,7 @@ METHOD_TYPE get_method_type(char* request)
 
 	method_type = atoi(request);
 
-	if(method_type >= Error)
+	if(method_type >= Error || method_type == 0)
 		return error;
 
 	return (METHOD_TYPE)method_type;
@@ -32,10 +32,10 @@ METHOD_TYPE get_method_type(char* request)
 
 char* get_method_string(METHOD_TYPE method_type)
 {
-	if (method_type < Error) 
+	if (method_type < Error && method_type > 0) 
 	{
-		return accepted_requests[method_type];
+		return accepted_requests[method_type - 1];
 	}
 
-	return 0;
+	return REQUEST_ERROR;
 }

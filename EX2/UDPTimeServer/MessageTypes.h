@@ -14,9 +14,10 @@
 #define GET_SECONDS_SINCE_BEGINING_OF_MONTH		"GetSecondsSinceBeginingOfMonth"
 #define GET_DAY_OF_YEAR							"GetDayOfYear"
 #define GET_DAYLIGHT_SAVINGS					"GetDaylightSavings"
+#define REQUEST_ERROR							"Invalid Request"
 
 enum METHOD_TYPE {
-	GetTime = 0,
+	GetTime = 1,
 	GetTimeWithoutDate,
 	GetTimeSinceEpoch,
 	GetClientToServerDelayEstimation,
