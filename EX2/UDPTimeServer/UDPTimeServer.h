@@ -11,7 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include <Windows.h>
-#include "MessageTypes.h"
+#include "MethodTypes.h"
 
 #define TIME_PORT	27015
 

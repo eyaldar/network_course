@@ -13,7 +13,7 @@ using namespace std;
 // Don't forget to include "ws2_32.lib" in the library list.
 #include <winsock2.h> 
 #include <string.h>
-#include "MessageTypes.h"
+#include "MethodTypes.h"
 
 #define TIME_PORT	27015
 

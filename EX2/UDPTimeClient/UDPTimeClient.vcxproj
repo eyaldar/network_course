@@ -147,11 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MethodType.cpp" />
+    <ClCompile Include="MethodTypes.cpp" />
     <ClCompile Include="UDPTimeClient.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MessageTypes.h" />
+    <ClInclude Include="MethodTypes.h" />
     <ClInclude Include="UDPTimeClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
