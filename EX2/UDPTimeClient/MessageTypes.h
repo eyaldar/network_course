@@ -32,4 +32,4 @@ enum METHOD_TYPE {
 };
 
 METHOD_TYPE get_method_type(char* methodType);
-char* get_method_string(METHOD_TYPE method_type);
+char* get_method_string(METHOD_TYPE methodType);

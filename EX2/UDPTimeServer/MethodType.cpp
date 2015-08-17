@@ -24,17 +24,17 @@ METHOD_TYPE get_method_type(char* request)
 
 	method_type = atoi(request);
 
-	if(method_type >= Error || method_type == 0)
+	if (method_type >= Error || method_type == 0)
 		return error;
 
 	return (METHOD_TYPE)method_type;
 }
 
-char* get_method_string(METHOD_TYPE method_type)
+char* get_method_string(METHOD_TYPE methodType)
 {
-	if (method_type < Error && method_type > 0) 
+	if (methodType < Error && methodType > 0)
 	{
-		return accepted_requests[method_type - 1];
+		return accepted_requests[methodType - 1];
 	}
 
 	return REQUEST_ERROR;
