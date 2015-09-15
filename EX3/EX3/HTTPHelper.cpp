@@ -81,12 +81,10 @@ map<string, string> parse_request(const char* data)
 		}
 	}
 
-	getline(resp, header);
+	int bodyIndex = (int)resp.tellg();
 
-	if (!header.empty())
+	if (bodyIndex != -1)
 	{
-		int bodyIndex = (int)resp.tellg();
-
 		string body = resp.str().substr(bodyIndex, resp.str().length());
 		m.insert(std::make_pair(
 			BODY_KEY, body
@@ -115,7 +113,7 @@ string build_response(map<std::string, std::string> response_params)
 		message += "\r\n" + key + ": " + value;
 	}
 
-	message += "\r\n\r\n";
+	message += "\r\n";
 	message += body;
 
 	return message;

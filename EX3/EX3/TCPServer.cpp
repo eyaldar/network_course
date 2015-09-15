@@ -486,11 +486,11 @@ std::string write_socket_data_to_file(int index)
 	string returnValue = OK;
 	ofstream outPutFile;
 
-	outPutFile.open(path, ios::in);
+	outPutFile.open(path, ios::out | ios::trunc);
 
 	if (!outPutFile.is_open())
 	{
-		outPutFile.open(path, ios::trunc);
+		outPutFile.open(path, ios::out | ios::trunc);
 		returnValue = CREATED;
 	}
 
