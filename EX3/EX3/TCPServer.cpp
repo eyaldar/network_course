@@ -303,6 +303,13 @@ void receiveMessage(int index)
 
 				return;
 			}
+			else if (strncmp(method.c_str(), "OPTIONS", 7) == 0)
+			{
+				sockets[index].send = SEND;
+				sockets[index].http_method = OPTIONS;
+
+				return;
+			}
 		}
 	}
 
@@ -312,13 +319,14 @@ int sendMessage(int index)
 {
 	int bytesSent = 0;
 	string sendBuff;
-	string fSize_str;
 	string message;
 	string strBuff;
 	string path;
 
-	int buffLen = 0;
-	int fSize_int = 0;
+	map<string, string> response_params;
+
+	int buff_len = 0;
+	int content_len = 0;
 	char ctmp[20];
 
 	char tmpbuff[BUFFER_SIZE];
@@ -338,19 +346,24 @@ int sendMessage(int index)
 
 			if (!file.is_open())
 			{
-				sockets[index].send = IDLE;
-				cout << "HTTP Server: Error at SEND(): " << WSAGetLastError() << endl;
-				return false;
+				response_params.insert(make_pair(STATUS_CODE_KEY, NOT_FOUND));
+				response_params.insert(make_pair(BODY_KEY, ""));
+				response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+
+				message = build_response(response_params);
 			}
 			else
 			{
-				message = "HTTP/1.1 200 OK\r\nDate: ";
-				message += ctime(&rawtime);
-				message += "\r\nContent-type: text/html";
-				message += "\r\n\r\n";
-				buffLen = message.size();
-				sendBuff = message;
+				content_len = file.get();				
 				file.close();
+
+				response_params.insert(make_pair(STATUS_CODE_KEY, OK));
+				response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+				response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+				response_params.insert(make_pair(BODY_KEY, ""));
+				response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(content_len, ctmp, 10)));
+
+				message = build_response(response_params);
 			}
 
 			break;
@@ -358,37 +371,95 @@ int sendMessage(int index)
 		case GET:
 
 			file.open(path);
-			if (file.is_open() == false)
-			{
-				cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
-				sockets[index].send = IDLE;
-				return false;
-			}
-
 			memset(tmpbuff, 0, BUFFER_SIZE);
 			message = strBuff = tmpbuff;
-			while (file.getline(readBuff, 512))
+
+			if (file.is_open() == false)
 			{
-				strBuff += readBuff;
-				fSize_int += strlen(readBuff);
+				response_params.insert(make_pair(STATUS_CODE_KEY, NOT_FOUND));
+				response_params.insert(make_pair(BODY_KEY, ""));
+				response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+
+				message = build_response(response_params);
+			}
+			else
+			{
+				while (file.getline(readBuff, 512))
+				{
+					strBuff += readBuff;
+					content_len += strlen(readBuff);
+				}
+
+				file.close();
+
+				response_params.insert(make_pair(STATUS_CODE_KEY, OK));
+				response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+				response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+				response_params.insert(make_pair(BODY_KEY, strBuff));
+				response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(content_len, ctmp, 10)));
+
+				message = build_response(response_params);
 			}
 
-			fSize_str = _itoa(fSize_int, ctmp, 10);
-			message = "HTTP/1.1 200 OK \r\nContent-type: text/html\r\nDate: ";
-			message += ctime(&rawtime);
-			message += "Content-length: ";
-			message += fSize_str;
-			message += "\r\n\r\n";
+			break;
 
-			message += strBuff;
+		case PUT:
 
-			buffLen = message.size();
-			sendBuff = message;
-			file.close();
+			//response_params.insert(make_pair(STATUS_CODE_KEY, write_socket_data_to_file(index)));
+			//response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+			//response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+			//response_params.insert(make_pair(BODY_KEY, ""));
+			//response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
+
+			//message = build_response(response_params);
+
+			break;
+
+		case DELETE_:
+
+			//response_params.insert(make_pair(STATUS_CODE_KEY, delete_file(index)));
+			//response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+			//response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+			//response_params.insert(make_pair(BODY_KEY, ""));
+			//response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
+
+			//message = build_response(response_params);
+
+			break;
+
+		case TRACE:
+			response_params.insert(make_pair(STATUS_CODE_KEY, OK));
+			response_params.insert(make_pair(CONTENT_TYPE_KEY, MESSAGE_CONTENT_TYPE));
+			response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+			response_params.insert(make_pair(BODY_KEY, sockets[index].data));
+			response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(strlen(sockets[index].data), ctmp, 10)));
+
+			message = build_response(response_params);
+
+			break;
+
+		case OPTIONS:
+			response_params.insert(make_pair(STATUS_CODE_KEY, OK));
+			response_params.insert(make_pair(ALLOW_KEY, ALLOWED_METHODS));
+			response_params.insert(make_pair(BODY_KEY, ""));
+
+			message = build_response(response_params);
+
+			break;
+
+		default:
+
+			response_params.insert(make_pair(STATUS_CODE_KEY, NOT_IMPLEMENTED));
+			response_params.insert(make_pair(BODY_KEY, ""));
+			response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+
 			break;
 	}
 
-	bytesSent = send(msgSocket, sendBuff.c_str(), buffLen, 0);
+	buff_len = message.size();
+	sendBuff = message;
+
+	bytesSent = send(msgSocket, sendBuff.c_str(), buff_len, 0);
 	memset(sockets[index].data, 0, BUFFER_SIZE);
 	sockets[index].len = 0;
 	if (SOCKET_ERROR == bytesSent)
@@ -398,7 +469,7 @@ int sendMessage(int index)
 		return false;
 	}
 
-	cout << "HTTP Server: Sent: " << bytesSent << "\\" << buffLen << " bytes of\n \"" << sendBuff.c_str() << "\"\n message.\n";
+	cout << "HTTP Server: Sent: " << bytesSent << "\\" << buff_len << " bytes of\n \"" << sendBuff.c_str() << "\"\n message.\n";
 	sockets[index].send = IDLE;
 
 	return true;

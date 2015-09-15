@@ -2,7 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 
-#include "HTTPRequestParser.h"
+#include "HTTPHelper.h"
 #include <iostream>
 // Don't forget to include "Ws2_32.lib" in the library list.
 #include <winsock2.h>
@@ -25,7 +25,8 @@ typedef enum http_method {
 	HEAD = 2,
 	PUT = 3,
 	DELETE_ = 4,
-	TRACE = 5
+	TRACE = 5,
+	OPTIONS = 6
 } http_method;
 
 struct SocketState {
@@ -55,5 +56,6 @@ struct SocketState sockets[MAX_SOCKETS] = { 0 };
 int socketsCount = 0;
 
 // Files
-//int write_socket_data_to_file(int socketindex, char * filename);
+std::string write_socket_data_to_file(int index);
+std::string delete_file(int index);
 char* parseErrorMessage(int errorCode);

@@ -1,4 +1,4 @@
-#include "HTTPRequestParser.h"
+#include "HTTPHelper.h"
 
 using namespace std;
 
@@ -88,4 +88,29 @@ map<string, string> parse_request(const char* data)
 	}
 
 	return m;
+}
+
+string build_response(map<std::string, std::string> response_params)
+{
+	string message;
+	string body = response_params.at(BODY_KEY);
+
+	message += "HTTP/1.1";
+	message += " " + response_params.at(STATUS_CODE_KEY);
+
+	response_params.erase(STATUS_CODE_KEY);
+	response_params.erase(BODY_KEY);
+	
+	for (map<string, string>::iterator iter = response_params.begin(); iter != response_params.end(); ++iter)
+	{
+		string key = iter->first;
+		string value = iter->second;
+
+		message += "\r\n" + key + ": " + value;
+	}
+
+	message += "\r\n\r\n";
+	message += body;
+
+	return message;
 }
