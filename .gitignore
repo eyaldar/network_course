@@ -2,6 +2,9 @@ EX2/.vs/
 EX2/Debug
 EX2/UDPTimeServer/Debug/*
 EX2/UDPTimeClient/Debug/*
+EX3/.vs/
+EX3/Debug
+EX3/EX3/Debug/*
 *.sdf
 *.opensdf
 *.filters
