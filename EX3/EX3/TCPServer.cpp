@@ -348,6 +348,8 @@ int sendMessage(int index)
 			{
 				response_params.insert(make_pair(STATUS_CODE_KEY, NOT_FOUND));
 				response_params.insert(make_pair(BODY_KEY, ""));
+				response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+				response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(content_len, ctmp, 10)));
 				response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
 
 				message = build_response(response_params);
@@ -378,6 +380,8 @@ int sendMessage(int index)
 			{
 				response_params.insert(make_pair(STATUS_CODE_KEY, NOT_FOUND));
 				response_params.insert(make_pair(BODY_KEY, ""));
+				response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+				response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(content_len, ctmp, 10)));
 				response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
 
 				message = build_response(response_params);
@@ -405,25 +409,25 @@ int sendMessage(int index)
 
 		case PUT:
 
-			//response_params.insert(make_pair(STATUS_CODE_KEY, write_socket_data_to_file(index)));
-			//response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
-			//response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
-			//response_params.insert(make_pair(BODY_KEY, ""));
-			//response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
+			response_params.insert(make_pair(STATUS_CODE_KEY, write_socket_data_to_file(index)));
+			response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+			response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+			response_params.insert(make_pair(BODY_KEY, ""));
+			response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
 
-			//message = build_response(response_params);
+			message = build_response(response_params);
 
 			break;
 
 		case DELETE_:
 
-			//response_params.insert(make_pair(STATUS_CODE_KEY, delete_file(index)));
-			//response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
-			//response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
-			//response_params.insert(make_pair(BODY_KEY, ""));
-			//response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
+			response_params.insert(make_pair(STATUS_CODE_KEY, delete_file(index)));
+			response_params.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+			response_params.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+			response_params.insert(make_pair(BODY_KEY, ""));
+			response_params.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
 
-			//message = build_response(response_params);
+			message = build_response(response_params);
 
 			break;
 
@@ -473,4 +477,50 @@ int sendMessage(int index)
 	sockets[index].send = IDLE;
 
 	return true;
+}
+
+std::string write_socket_data_to_file(int index)
+{
+	string path = sockets[index].headers.at(PATH_KEY);
+	string content = sockets[index].headers.at(BODY_KEY);
+	string returnValue = OK;
+	ofstream outPutFile;
+
+	outPutFile.open(path, ios::in);
+
+	if (!outPutFile.is_open())
+	{
+		outPutFile.open(path, ios::trunc);
+		returnValue = CREATED;
+	}
+
+	if (!outPutFile.is_open())
+	{
+		cout << "HTTP Server: Writing Error " << WSAGetLastError() << endl;
+		returnValue = NOT_IMPLEMENTED;
+	}
+	else if (content.empty())
+	{
+		returnValue = NO_CONTENT;
+	}
+	else
+	{
+		outPutFile << content;
+	}
+	outPutFile.close();
+	return returnValue;
+}
+
+std::string delete_file(int index)
+{
+	string path = sockets[index].headers.at(PATH_KEY);
+	string returnValue = OK;
+	ofstream outPutFile;
+
+	if (remove(path.c_str()) != 0)
+	{
+		returnValue = NOT_FOUND;
+	}
+
+	return returnValue;
 }

@@ -6,7 +6,7 @@ string rtrim(string str)
 {
 	int index = str.length();
 
-	while ((str.at(index - 1) == ' ' || str.at(index - 1) == '\r') && index - 1 > 0)
+	while (index - 1 > 0 && (str.at(index - 1) == ' ' || str.at(index - 1) == '\r'))
 	{
 		index--;
 	}
@@ -19,6 +19,12 @@ string rtrim(string str)
 string ltrim(string str)
 {
 	int index = 0;
+
+	if (str.empty())
+	{
+		return str;
+	}
+
 	do
 	{
 		char c = str.at(index);

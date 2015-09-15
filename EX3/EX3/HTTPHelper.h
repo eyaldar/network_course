@@ -3,6 +3,7 @@
 #include <sstream>
 
 #define OK "200 OK"
+#define CREATED "201 Created"
 #define NO_CONTENT "204 No Content"
 #define NOT_FOUND "404 Not Found"
 #define PRECONDITION_FAILED "412 Precondition Failed"
