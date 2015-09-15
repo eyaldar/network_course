@@ -147,9 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="HTTPRequestParser.h" />
     <ClInclude Include="TCPServer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="HTTPRequestParser.cpp" />
     <ClCompile Include="TCPServer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

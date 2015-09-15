@@ -1,5 +1,7 @@
 #include "TCPServer.h"
 
+using namespace std;
+
 void main() 
 {
 	time_t tCurrentTime;
@@ -263,22 +265,42 @@ void receiveMessage(int index)
 
 		if (sockets[index].len > 0)
 		{
-			if (strncmp(sockets[index].data, "HEAD", 4) == 0)
+			sockets[index].headers = parse_request(sockets[index].data);
+			string method = sockets[index].headers.at(METHOD_KEY);
+
+			if (strncmp(method.c_str(), "HEAD", 4) == 0)
 			{
 				sockets[index].send = SEND;
 				sockets[index].http_method = HEAD;
-				strcpy(sockets[index].data, &sockets[index].data[6]);
-				sockets[index].len = strlen(sockets[index].data);
-				sockets[index].data[sockets[index].len] = '\0';
+
 				return;
 			}
-			else if (strncmp(sockets[index].data, "GET", 3) == 0)
+			else if (strncmp(method.c_str(), "GET", 3) == 0)
 			{
 				sockets[index].send  = SEND;
-				memcpy(sockets[index].data, &sockets[index].data[5], sockets[index].len - 5);
-				sockets[index].len -= 5;
-
 				sockets[index].http_method = GET;
+
+				return;
+			}
+			else if (strncmp(method.c_str(), "PUT", 3) == 0)
+			{
+				sockets[index].send = SEND;
+				sockets[index].http_method = PUT;
+
+				return;
+			}
+			else if (strncmp(method.c_str(), "DELETE", 6) == 0)
+			{
+				sockets[index].send = SEND;
+				sockets[index].http_method = DELETE_;
+
+				return;
+			}
+			else if (strncmp(method.c_str(), "TRACE", 5) == 0)
+			{
+				sockets[index].send = SEND;
+				sockets[index].http_method = TRACE;
+
 				return;
 			}
 		}
@@ -293,25 +315,27 @@ int sendMessage(int index)
 	string fSize_str;
 	string message;
 	string strBuff;
+	string path;
 
 	int buffLen = 0;
 	int fSize_int = 0;
-	char* tmp = 0;
 	char ctmp[20];
 
 	char tmpbuff[BUFFER_SIZE];
-	char readBuff[512], filename[128];
+	char readBuff[512];
 	time_t rawtime;
 	ifstream file;
 	time(&rawtime);
 	SOCKET msgSocket = sockets[index].id;
 	sockets[index].last_activity = time(0);
 
+	path = sockets[index].headers.at(PATH_KEY);
+
 	switch (sockets[index].http_method)
 	{
 		case HEAD:
-			tmp = strtok(sockets[index].data, " ");
-			file.open(sockets[index].data);
+			file.open(path);
+
 			if (!file.is_open())
 			{
 				sockets[index].send = IDLE;
@@ -332,16 +356,15 @@ int sendMessage(int index)
 			break;
 
 		case GET:
-			tmp = 0;
 
-			tmp = strtok(sockets[index].data, " ");
-			file.open(sockets[index].data);
+			file.open(path);
 			if (file.is_open() == false)
 			{
 				cout << "HTTP Server: Error at S_SEND(): " << WSAGetLastError() << endl;
 				sockets[index].send = IDLE;
 				return false;
 			}
+
 			memset(tmpbuff, 0, BUFFER_SIZE);
 			message = strBuff = tmpbuff;
 			while (file.getline(readBuff, 512))
@@ -365,28 +388,6 @@ int sendMessage(int index)
 			break;
 	}
 
-	//if (sockets[index].sendSubType == SEND_TIME)
-	//{
-	//	// Answer client's request by the current time string.
-	//	
-	//	// Get the current time.
-	//	time_t timer;
-	//	time(&timer);
-	//	// Parse the current time to printable string.
-	//	strcpy(sendBuff, ctime(&timer));
-	//	sendBuff[strlen(sendBuff)-1] = 0; //to remove the new-line from the created string
-	//}
-	//else if(sockets[index].sendSubType == SEND_SECONDS)
-	//{
-	//	// Answer client's request by the current time in seconds.
-	//	
-	//	// Get the current time.
-	//	time_t timer;
-	//	time(&timer);
-	//	// Convert the number to string.
-	//	_itoa((int)timer, sendBuff, 10);		
-	//}
-
 	bytesSent = send(msgSocket, sendBuff.c_str(), buffLen, 0);
 	memset(sockets[index].data, 0, BUFFER_SIZE);
 	sockets[index].len = 0;
@@ -402,4 +403,3 @@ int sendMessage(int index)
 
 	return true;
 }
-
